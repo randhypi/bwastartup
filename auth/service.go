@@ -1,9 +1,14 @@
 package auth
 
-import "github.com/dgrijalva/jwt-go"
+import (
+	"errors"
+
+	"github.com/dgrijalva/jwt-go"
+)
 
 type Service interface {
 	GenerateToken(userID int) (string, error)
+	ValidateToken(tokenString string) (*jwt.Token, error)
 }
 
 type jwtService struct {
@@ -29,4 +34,20 @@ func (s *jwtService) GenerateToken(userID int) (string, error) {
 
 	return tokenString, nil
 
+}
+
+func (s *jwtService) ValidateToken(tokenString string) (*jwt.Token, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("Unexpected signing method")
+		}
+
+		return SECRET_KEY, nil
+	})
+
+	if err != nil {
+		return token, err
+	}
+
+	return token, nil
 }
