@@ -121,7 +121,10 @@ func (h *userHandler) IsEmailAvailable(c *gin.Context) {
 }
 
 func (h *userHandler) UploadAvatar(c *gin.Context) {
-	ID := 1
+
+	// validate token and get user_id
+	currentUser := c.MustGet("currentUser").(user.User)
+	ID := currentUser.ID
 
 	file, err := c.FormFile("avatar")
 
