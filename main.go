@@ -25,25 +25,25 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	authService := auth.NewService()
 
 	userRepository := user.NewRepository(db)
-	userService := user.NewService(userRepository)
-	userHandler := handler.NewUserHandler(userService, authService)
-
 	campaignRepository := campaign.NewRepository(db)
 
-	campaigns, err := campaignRepository.FindByUserId(17)
+	authService := auth.NewService()
+	userService := user.NewService(userRepository)
+	campaignService := campaign.NewService(campaignRepository)
+
+	userHandler := handler.NewUserHandler(userService, authService)
+
+	fmt.Println("debug")
+	fmt.Println("debug")
+	fmt.Println("debug")
+	campaigns, err := campaignService.FindCampaigns(1)
 	if err != nil {
-		print(err)
+		fmt.Println(err)
 		return
 	}
-	println("debug")
-	println("debug")
-	println("debug")
-	for _, campaign := range campaigns {
-		fmt.Println(campaign.CampaignImages)
-	}
+	fmt.Println(len(campaigns))
 
 	router := gin.Default()
 
