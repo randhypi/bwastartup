@@ -105,6 +105,7 @@ func (h *campaignHandler) CreateCampaign(c *gin.Context) {
 }
 
 func (h *campaignHandler) UpdateCampaign(c *gin.Context) {
+
 	inputID := campaign.GetCampaignDetailInput{}
 	err := c.ShouldBindUri(&inputID)
 	if err != nil {
@@ -116,8 +117,9 @@ func (h *campaignHandler) UpdateCampaign(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-
+	currentUser := c.MustGet("currentUser").(user.User)
 	inputData := campaign.CreateCampaignInput{}
+	inputData.User = currentUser
 	err = c.ShouldBindJSON(&inputData)
 	if err != nil {
 		errors := helper.FormatValidationError(err)

@@ -1,6 +1,7 @@
 package campaign
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -70,6 +71,10 @@ func (s *service) UpdateCampaign(inputID GetCampaignDetailInput, inputData Creat
 	campaign, err := s.repository.FindById(inputID.ID)
 	if err != nil {
 		return campaign, err
+	}
+
+	if campaign.UserId != inputData.User.ID {
+		return campaign, errors.New("you are not allowed to update this campaign")
 	}
 
 	campaign.Name = inputData.Name
