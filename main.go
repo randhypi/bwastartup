@@ -46,7 +46,9 @@ func main() {
 	api.POST("/avatars", authMiddleWare(authService, userService), userHandler.UploadAvatar)
 
 	api.GET("/campaigns", campaignHandler.GetCampaigns)
-	api.GET("/campaign/:id", campaignHandler.GetCampaign)
+	api.GET("/campaigns/:id", campaignHandler.GetCampaign)
+	api.POST("/campaigns", authMiddleWare(authService, userService), campaignHandler.CreateCampaign)
+	api.PUT("/campaigns/:id", authMiddleWare(authService, userService), campaignHandler.UpdateCampaign)
 
 	router.Run(":8080")
 
@@ -94,7 +96,6 @@ func authMiddleWare(authService auth.Service, userService user.Service) gin.Hand
 		}
 
 		c.Set("currentUser", user)
-
 	}
 
 }
