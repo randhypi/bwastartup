@@ -13,6 +13,7 @@ type Service interface {
 	GetCampaignById(input GetCampaignDetailInput) (Campaign, error)
 	CreateCampaign(input CreateCampaignInput) (Campaign, error)
 	UpdateCampaign(inputID GetCampaignDetailInput, inputData CreateCampaignInput) (Campaign, error)
+	SaveCampaignImage(inputData CreateCampaignImageInput, fileLocation string) (CampaignImage, error)
 }
 
 type service struct {
@@ -88,4 +89,37 @@ func (s *service) UpdateCampaign(inputID GetCampaignDetailInput, inputData Creat
 		return updatedCampaign, err
 	}
 	return updatedCampaign, nil
+}
+
+func (s *service) SaveCampaignImage(inputData CreateCampaignImageInput, fileLocation string) (CampaignImage, error) {
+
+	campaign, err := s.repository.FindById(inputData.CampaignID)
+	if err != nil {
+		return CampaignImage{}, err
+	}
+
+	if campaign.UserId != inputData.User.ID {
+		return CampaignImage{}, errors.New("you are not allowed to insert image to this campaign")
+	}
+
+	isPrimary := 0
+	if inputData.IsPrimary {
+		isPrimary = 1
+		_, err := s.repository.MarkAllImagesAsNonPrimary(inputData.CampaignID)
+		if err != nil {
+			return CampaignImage{}, err
+		}
+
+	}
+
+	campaignImage := CampaignImage{}
+	campaignImage.CampaignID = inputData.CampaignID
+	campaignImage.FileName = fileLocation
+	campaignImage.IsPrimary = isPrimary
+
+	newCampaignImage, err := s.repository.CreateImage(campaignImage)
+	if err != nil {
+		return newCampaignImage, err
+	}
+	return newCampaignImage, nil
 }
